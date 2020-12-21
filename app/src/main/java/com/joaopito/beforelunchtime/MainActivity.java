@@ -25,6 +25,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    //TODO:Functionality - The user needs to be able to set a timer for the lunchtime and a notification must appear
+    //TODO:Functionality - Edit the tasks already created
+    //TODO:Functionality - readjusting the order of tasks in the list
+
+
     //Used to know where the debug msgs come from
     private static final String TAG = "MainActivity";
 
@@ -134,18 +139,20 @@ public class MainActivity extends AppCompatActivity {
         db.close();
     }
 
+    //TODO: Instead of deleting the class, it changes its state to DONE when the chekbox is checked
+    //If the user wants to delete the task he needs to hold it for a few seconds or swipe it to the side
     //Function for the DONE Button
     public void deleteTask(View view){
         //Deals with the UI
-        View parent = (View) view.getParent();
+       /* View parent = (View) view.getParent();
         TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
-        String task = String.valueOf(taskTextView.getText());
+        String task = String.valueOf(taskTextView.getText());*/
 
         //Deals with the DB
-        SQLiteDatabase db = mHelper.getWritableDatabase();
+        /*SQLiteDatabase db = mHelper.getWritableDatabase();
         db.delete(TaskContract.TaskEntry.TABLE, TaskContract.TaskEntry.COL_TASK_TITLE + " = ?",
                 new String[]{task});
-        db.close();
+        db.close();*/
 
         UpdateUI();
     }

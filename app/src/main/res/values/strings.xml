@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Before Lunchtime</string>
+    <string name="item_todo_placeholderText">Weird... Too empty in here</string>
 </resources>
