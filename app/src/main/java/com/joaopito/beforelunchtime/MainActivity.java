@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
             textView.setText(checkboxItems.get(position));
             cb.setChecked(checkboxState.get(position));
+
             return convertView;
         }
     }
@@ -201,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
         String task = getTextfromUI(view);
         deleteTask(task);
         createTask(done,task);
+
+        //UpdateUI();
     }
 
     public void deleteTaskUI(View view){

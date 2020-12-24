@@ -8,4 +8,5 @@
 
     <string name="Default_Cancel">Cancel</string>
     <string name="Default_Create">Create</string>
+    <string name="timer_placeholder">00:00 To Lunchtime</string>
 </resources>
