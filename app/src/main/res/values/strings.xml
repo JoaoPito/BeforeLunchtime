@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Before Lunchtime</string>
-    <string name="item_todo_placeholderText">Weird... Too empty in here</string>
+
+    <string name="itemTodo_placeholderText">Weird... Too empty in here</string>
+
+    <string name="MainAct_AddTask_Title">Create a new task</string>
+    <string name="MainAct_AddTask_Subtitle">What are you going to do today?</string>
+
+    <string name="Default_Cancel">Cancel</string>
+    <string name="Default_Create">Create</string>
 </resources>

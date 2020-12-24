@@ -17,8 +17,9 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         //This string has the commands for creating a table in SQL
         //Now it only contains an ID and some Text
         String createTable = "CREATE TABLE " + TaskContract.TaskEntry.TABLE + " ( " +
-                TaskContract.TaskEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                TaskContract.TaskEntry.COL_TASK_TITLE + " TEXT NOT NULL);";
+                TaskContract.TaskEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + //Column for the ID
+                TaskContract.TaskEntry.COL_TASK_DONE + " INTEGER DEFAULT 0, " + //Column for done status
+                TaskContract.TaskEntry.COL_TASK_TITLE + " TEXT NOT NULL);"; //Column for the text
 
         db.execSQL(createTable);
     }
