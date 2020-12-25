@@ -26,8 +26,9 @@ import com.joaopito.beforelunchtime.db.TaskContract;
 import com.joaopito.beforelunchtime.db.TaskDbHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static java.lang.Integer.parseInt;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,39 +102,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //This is our custom ArrayAdapter that handles checkboxes and strings
-    public class CheckboxAdapter extends ArrayAdapter {
+    public class CheckboxAdapter extends ArrayAdapter<String> {
         Context context;
-        List<Boolean> checkboxState;
-        List<String> checkboxItems;
+        List<String> itemText;
+        List<Boolean> itemChecked;
 
-        public CheckboxAdapter(Context context, List<String> resource, ArrayList<Boolean> checkboxResource) {
-            super(context, R.layout.item_todo, resource);
+        public CheckboxAdapter(Context context, List<String> stringResources, List<Boolean> checkResources) {
+            super(context, R.layout.item_todo, stringResources);
 
             this.context = context;
-            this.checkboxItems = resource;
-            this.checkboxState = checkboxResource;
+            this.itemChecked = checkResources;
+            this.itemText = stringResources;
         }
 
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             convertView = inflater.inflate(R.layout.item_todo, parent, false);
+
             TextView textView = (TextView) convertView.findViewById(R.id.task_title);
             CheckBox cb = (CheckBox) convertView.findViewById(R.id.task_checkbox);
 
-            textView.setText(checkboxItems.get(position));
-            cb.setChecked(checkboxState.get(position));
+            textView.setText(itemText.get(position));
+            cb.setChecked(itemChecked.get(position));
 
             return convertView;
+        }
+
+        public void updateChecked(List<Boolean> newItemChecked){
+            itemChecked = newItemChecked;
         }
     }
 
     private void UpdateUI(){
+        //TODO: Find a way to find tasks using the ID
         ArrayList<String> taskList = new ArrayList<>();
         ArrayList<Boolean> doneList = new ArrayList<>();
 
         SQLiteDatabase db = mHelper.getReadableDatabase();//Our DB
 
+        //First it goes through the DB and put the strings into taskList and the checkbox data into doneList
         Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
                 new String[] {TaskContract.TaskEntry._ID,
                               TaskContract.TaskEntry.COL_TASK_DONE,
@@ -145,34 +153,44 @@ public class MainActivity extends AppCompatActivity {
             int done_idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_DONE);
 
             Boolean done_bool = false;
-            if(cursor.getInt(done_idx)>0) done_bool = true;
+            if(cursor.getInt(done_idx)>0) done_bool = true;//Booleans are stored as ints in the DB
 
-            Log.d(TAG, "Task: " + cursor.getString(text_idx) + " Done: " + cursor.getInt(done_idx));
-
-            taskList.add(cursor.getString(text_idx));//Adds the task to the UI
-            doneList.add(done_bool);
+            doneList.add(done_bool);//List of all checkbox states
+            taskList.add(cursor.getString(text_idx));//Adds to the list of strings
         }
 
-        //the mAdapter is attached to the ListView and helps us to populate our UI with stuff
+        //the Adapter is attached to the ListView and helps us to populate our UI with stuff
         if(taskAdapter == null){
             taskAdapter = new CheckboxAdapter(this, taskList, doneList);
             mTaskListView.setAdapter(taskAdapter);
         } else {
             taskAdapter.clear();
+            taskAdapter.updateChecked(doneList);//Updates the UI checkbox states
             taskAdapter.addAll(taskList);
-            taskAdapter.notifyDataSetChanged();
+            taskAdapter.notifyDataSetChanged();//Refresh
         }
 
         cursor.close();
         db.close();
     }
 
+    //Useful functions for using the UI data to find it in the DB
     public String getTextfromUI(View view){
         View parent = (View) view.getParent();
+        //Here it finds the task using its text, its not a good way, it leads to bugs when there are 2 identical tasks
         TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
-        String task = String.valueOf(taskTextView.getText()); //find the task by its text
+        String task = String.valueOf(taskTextView.getText());
 
         return task;
+    }
+
+    public int getIDfromUI(View view){
+        View parent = (View) view.getParent();
+        //Here it finds the task using its text, its not a good way, it leads to bugs when there are 2 identical tasks
+        TextView taskTextView = (TextView) parent.findViewById(R.id.task_id);
+        int ID = parseInt(String.valueOf(taskTextView.getText()));
+
+        return ID;
     }
 
     //Function for the DONE Button
@@ -180,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        int doneTask = 0;
+        int doneTask = 0;//Bools are stored as ints in the DB
         if(done) doneTask = 1;
 
         values.put(TaskContract.TaskEntry.COL_TASK_DONE, doneTask);
@@ -190,22 +208,25 @@ public class MainActivity extends AppCompatActivity {
         db.close();
     }
 
+    //Its called when the checkbox state is changed
     public void doneTask(View view){
         Boolean done = ((CheckBox) view).isChecked();
 
         View parent = (View) view.getParent();
         CheckBox taskCheckbox = (CheckBox) parent.findViewById(R.id.task_checkbox);
 
-        //Its a bit of a hacky way but it first deletes the task and creates another with the new state
+        //Its a hacky way, it first deletes the task and then creates another with the new state
         //Probably if the user has 2 identical tasks could lead to some bugs
         //Maybe a better way would be to look for the task ID but i dont want to do this now
         String task = getTextfromUI(view);
+        //int taskID = getIDfromUI(view);
         deleteTask(task);
         createTask(done,task);
 
-        //UpdateUI();
+        UpdateUI();
     }
 
+    //Function for the delete button
     public void deleteTaskUI(View view){
         String task = getTextfromUI(view); //find the task by its text
         deleteTask(task);
@@ -219,6 +240,14 @@ public class MainActivity extends AppCompatActivity {
         db.delete(TaskContract.TaskEntry.TABLE,
                 TaskContract.TaskEntry.COL_TASK_TITLE + " = ?",
                 new String[]{task});
+        db.close();
+    }
+
+    public void deleteTask(int taskID){
+        //Deals with the DB
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.delete(TaskContract.TaskEntry.TABLE,
+                TaskContract.TaskEntry._ID + " = ?", new String[]{String.valueOf(taskID)});
         db.close();
     }
 }

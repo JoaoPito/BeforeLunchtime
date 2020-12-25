@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--Objeto de tarefa individual-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical">
@@ -8,28 +9,6 @@
     <!--Texto da tarefa-->
 
     <!--Botao de concluido-->
-
-    <TextView
-        android:id="@+id/task_title"
-        android:layout_width="304dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-
-        android:layout_toStartOf="@+id/task_checkbox"
-        android:layout_toLeftOf="@+id/task_checkbox"
-        android:layout_toEndOf="@+id/task_checkbox"
-        android:layout_toRightOf="@+id/task_checkbox"
-
-        android:text="@string/itemTodo_placeholderText"
-
-        android:textSize="22sp" />
 
     <CheckBox
         android:id="@+id/task_checkbox"
@@ -42,6 +21,60 @@
         android:layout_marginTop="6dp"
         android:checked="false"
         android:onClick="doneTask" />
-        <!--android:text="OK" /-->
+
+    <Button
+        android:id="@+id/delete_button"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+
+        android:background="@android:drawable/ic_delete"
+        android:text=" "
+        app:backgroundTint="#C13636"
+        android:onClick="deleteTaskUI"/>
+
+    <TextView
+        android:id="@+id/task_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="8dp"
+
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+
+        android:layout_toStartOf="@+id/delete_button"
+        android:layout_toLeftOf="@+id/delete_button"
+        android:layout_toEndOf="@+id/task_checkbox"
+        android:layout_toRightOf="@+id/task_checkbox"
+        android:text="@string/itemTodo_placeholderText"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/task_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="8dp"
+
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+
+        android:layout_toStartOf="@+id/delete_button"
+        android:layout_toLeftOf="@+id/delete_button"
+        android:text=""
+        android:textSize="10sp" />
+
+
+    <!--android:text="OK" /-->
 
 </RelativeLayout>
