@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +32,8 @@ import static java.lang.Integer.parseInt;
 public class MainActivity extends AppCompatActivity {
 
     //TODO:Functionality - The user needs to be able to set a timer for the lunchtime and a notification must appear
+    //TODO:Functionality - Create a settings menu to configure stuff as timer, etc
+    //TODO:Functionality - Notification for the timer and the tasks (Maybe a permanent notification for when the timer is running)
     //TODO:Functionality - Edit the tasks already created
     //TODO:Functionality - readjusting the order of tasks in the list
     //TODO:Maybe create an activity for adding new tasks, and for adding more info about the task
@@ -46,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private ListView mTaskListView;
     private CheckboxAdapter taskAdapter;
 
+    //Timer
+    private TimerHelper lunchTimer;
+    private static final int timerUpdateInterval = 1000;//1 second
+
+    private TextView timerTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +61,45 @@ public class MainActivity extends AppCompatActivity {
         mHelper = new TaskDbHelper(this);
         mTaskListView = (ListView) findViewById(R.id.list_todo);
 
-        UpdateUI();
+        lunchTimer = new TimerHelper();
+        timerTextView = (TextView)findViewById(R.id.timer_display);
+
+        //This is for updating the Timer once per minute
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(timerUpdateInterval);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                lunchTimer.Update();
+                                UpdateUI();
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        UpdateTaskList();
+        thread.start();
+    }
+
+    private void UpdateUI(){
+        UpdateTaskList();
+
+        String text;
+
+        if(!lunchTimer.PastLunchTime()){
+            text = lunchTimer.GetRemainingString() + " " + getString(R.string.timer_text);
+        }else{
+            text = getString(R.string.timer_nextTime) + " " + lunchTimer.GetRemainingString();
+        }
+
+        timerTextView.setText(text);
     }
 
     //Creates the main_menu.xml menu in the activity
@@ -86,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                                 String task = String.valueOf(taskEditText.getText());
 
                                 createTask(false,task);
-                                UpdateUI();
+                                UpdateTaskList();
                             }
                         })
                         //Cancela a acao
@@ -134,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void UpdateUI(){
+    private void UpdateTaskList(){
         //TODO: Find a way to find tasks using the ID
         ArrayList<String> taskList = new ArrayList<>();
         ArrayList<Boolean> doneList = new ArrayList<>();
@@ -223,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         deleteTask(task);
         createTask(done,task);
 
-        UpdateUI();
+        UpdateTaskList();
     }
 
     //Function for the delete button
@@ -231,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         String task = getTextfromUI(view); //find the task by its text
         deleteTask(task);
 
-        UpdateUI();
+        UpdateTaskList();
     }
 
     public void deleteTask(String task){

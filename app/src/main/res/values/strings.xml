@@ -8,5 +8,8 @@
 
     <string name="Default_Cancel">Cancel</string>
     <string name="Default_Create">Create</string>
-    <string name="timer_placeholder">00:00 To Lunchtime</string>
+
+    <string name="timer_text">until lunchtime</string>
+    <string name="timer_pastTime">Lunchtime is over :(</string>
+    <string name="timer_nextTime">Time past lunchtime: </string>
 </resources>
